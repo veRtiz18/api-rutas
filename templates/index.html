@@ -1,172 +1,204 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Planificador de Rutas - Google Maps</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+  <head>
+    <title>Google Maps Multiple Destinations</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
     <style>
-        #map {
-            height: 90vh;
-            width: 100%;
-        }
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-        .container-fluid {
-            padding: 0;
-        }
-        .controls {
-            background-color: #fff;
-            border-radius: 3px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-            box-sizing: border-box;
-            font-family: Roboto;
-            margin: 10px;
-            padding: 10px;
-            text-align: left;
-            width: 300px;
-        }
-        .controls h5 {
-            margin: 0 0 10px 0;
-        }
+      #map {
+        height: 80%;
+        width: 100%;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #inputs {
+        margin: 20px;
+      }
+      #results {
+        margin: 20px;
+      }
     </style>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAgIwoNsnI4JVgb-jGacBcRLiOd9JMLtRs&libraries=places"></script>
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-</head>
-<body>
-    <div class="container-fluid">
-        <div class="controls">
-            <h5>Planificador de Rutas</h5>
-            <div class="form-group">
-                <label for="origin">Origen</label>
-                <input id="origin" type="text" class="form-control" placeholder="Origen">
+  </head>
+  <body class="bg-gray-100">
+    <div class="container mx-auto p-4">
+      <div class="grid grid-cols-2 gap-4">
+        <div class="w-full p-4 border border-gray-200 rounded-lg shadow sm:p-8 dark:border-blue-700 bg-gradient-to-br from-blue-500 via-green-500 to-blue-300">
+          <h5 class="mb-4 text-3xl font-bold leading-none tracking-tight text-white md:text-4xl lg:text-5xl text-white">Planificador de rutas</h5>
+
+          <div id="inputs">
+            <div class="mb-5">
+              <label for="large-input" class="block mb-2 text-sm font-medium text-white dark:text-white">Origen:</label>
+              <input id="origin" type="text" class="bg-transparent border border-white text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
             </div>
-            <div class="form-group">
-                <label for="destination">Destino Final</label>
-                <input id="destination" type="text" class="form-control" placeholder="Destino final">
+
+            <div class="mb-5">
+              <label for="large-input" class="block mb-2 text-sm font-medium text-white dark:text-white">Destino Final:</label>
+              <input id="destination" type="text" class="bg-transparent border border-white text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
             </div>
-            <div class="form-group">
-                <label for="num_waypoints">Número de Waypoints</label>
-                <input id="num_waypoints" type="number" class="form-control" placeholder="Número de waypoints" min="0">
+            <div class="mb-5">
+              <label for="large-input" class="block mb-2 text-sm font-medium text-white dark:text-white">Número de Waypoints:</label>
+              <input id="num_waypoints" type="number" class="bg-transparent border border-white text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
             </div>
-            <div class="form-group">
-                <label for="travel_mode">Modo de Viaje</label>
-                <select id="travel_mode" class="form-control">
-                    <option value="DRIVING">Carro</option>
-                    <option value="BICYCLING">Bicicleta</option>
-                    <option value="WALKING">Caminando</option>
-                </select>
+
+            <form class="max-w-sm mx-auto">
+              <label for="countries" class="block mb-2 text-sm font-medium text-white dark:text-white">Seleccione el modo de viaje:</label>
+              <select id="travel_mode" class="bg-transparent border border-white text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                <option class="text-black dark:text-white" selected>Seleccione...</option>
+                <option class="text-black dark:text-white" value="DRIVING">Carro</option>
+                <option class="text-black dark:text-white" value="BICYCLING">Bicicleta</option>
+                <option class="text-black dark:text-white" value="WALKING">Caminando</option>
+              </select>
+            </form>
+            <div class="text-start">
+              <button onclick="generateWaypointInputs()" type="button" class="text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-1 mt-5">Generar campos de waypoints</button>
+
+              <div id="waypoint_inputs" class="mb-4"></div>
+              <button onclick="calculateRoute()" class="text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">Calcular Ruta</button>
             </div>
-            <button onclick="generateWaypointInputs()" class="btn btn-primary mb-2">Generar campos de waypoints</button>
-            <div id="waypoint_inputs" class="form-group"></div>
-            <button onclick="calculateRoute()" class="btn btn-success">Calcular Ruta</button>
-            <div id="results" class="mt-4">
-                <p id="distance" class="card-text"></p>
-                <p id="duration" class="card-text"></p>
-                <p id="fuel_cost" class="card-text"></p>
-                <p id="toll_cost" class="card-text"></p>
-                <p id="total_cost" class="card-text"></p>
-            </div>
+          </div>
         </div>
-        <div id="map"></div>
+        <div id="results" class="w-full p-4 border border-gray-200 rounded-lg shadow sm:p-8 dark:border-black-700 bg-gradient-to-br from-purple-600 to-blue-500 to-blue-300 text-white">
+          <h5 class="mb-4 text-3xl font-bold leading-none tracking-tight text-white md:text-4xl lg:text-3xl">Resultados</h5>
+          <p id="distance" class="mb-2 lg:text-1xl">
+            <i class="fas fa-route"></i> <span>Distancia total:</span>
+          </p>
+          <p id="duration" class="mb-2 lg:text-1xl">
+            <i class="fas fa-clock"></i> <span>Duración total:</span>
+          </p>
+          <p id="fuel_cost" class="mb-2 lg:text-1xl">
+            <i class="fas fa-gas-pump"></i> <span>Costo total de la gasolina:</span>
+          </p>
+          <p id="toll_cost" class="mb-2 lg:text-1xl">
+            <i class="fas fa-dollar-sign"></i> <span>Costo total de las casetas:</span>
+          </p>
+          <p id="total_cost" class="mb-2 lg:text-1xl">
+            <i class="fas fa-wallet"></i> <span>Costo total del viaje:</span>
+          </p>
+        </div>
+      </div>
+      
+      <h5 class="lg:text-5xl mt-3 font-bold bg-gradient-to-br from-blue-500 via-green-500 to-blue-300 text-transparent bg-clip-text">Planificador de rutas</h5>
+
+      
     </div>
+
+    <div id="map"></div>
     <script>
-        let map;
-        let directionsService;
-        let directionsRenderer;
-        let waypointsData = [];
-
-        function initMap() {
-            map = new google.maps.Map(document.getElementById('map'), {
-                zoom: 6,
-                center: {lat: 19.432608, lng: -99.133209} // Ciudad de México
-            });
-
-            directionsService = new google.maps.DirectionsService();
-            directionsRenderer = new google.maps.DirectionsRenderer({
-                map: map
-            });
+      let map
+      let directionsService
+      let directionsRenderer
+      let waypointsData = []
+      
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 6,
+          center: { lat: 19.432608, lng: -99.133209 } // Ciudad de México
+        })
+      
+        directionsService = new google.maps.DirectionsService()
+        directionsRenderer = new google.maps.DirectionsRenderer({
+          map: map
+        })
+      
+        // Initialize Autocomplete for inputs
+        const originInput = document.getElementById('origin')
+        const destinationInput = document.getElementById('destination')
+      
+        const originAutocomplete = new google.maps.places.Autocomplete(originInput)
+        const destinationAutocomplete = new google.maps.places.Autocomplete(destinationInput)
+      
+        originAutocomplete.setFields(['place_id', 'geometry', 'name'])
+        destinationAutocomplete.setFields(['place_id', 'geometry', 'name'])
+      }
+      
+      function generateWaypointInputs() {
+        const numWaypoints = document.getElementById('num_waypoints').value
+        const waypointContainer = document.getElementById('waypoint_inputs')
+        waypointContainer.innerHTML = ''
+      
+        for (let i = 0; i < numWaypoints; i++) {
+          const input = document.createElement('input')
+          input.type = 'text'
+          input.className = 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mb-2 transition-all'
+          input.placeholder = `Waypoint ${i + 1}`
+          input.id = `waypoint${i + 1}`
+          waypointContainer.appendChild(input)
+      
+          // Initialize Autocomplete for each waypoint input
+          const waypointAutocomplete = new google.maps.places.Autocomplete(input)
+          waypointAutocomplete.setFields(['place_id', 'geometry', 'name'])
         }
-
-        function generateWaypointInputs() {
-            const numWaypoints = document.getElementById('num_waypoints').value;
-            const waypointContainer = document.getElementById('waypoint_inputs');
-            waypointContainer.innerHTML = '';
-
-            for (let i = 0; i < numWaypoints; i++) {
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.className = 'form-control mb-2';
-                input.placeholder = `Waypoint ${i + 1}`;
-                input.id = `waypoint${i + 1}`;
-                waypointContainer.appendChild(input);
-            }
+      }
+      
+      function calculateRoute() {
+        const origin = document.getElementById('origin').value
+        const destination = document.getElementById('destination').value
+        const numWaypoints = document.getElementById('num_waypoints').value
+        const travelMode = document.getElementById('travel_mode').value
+      
+        waypointsData = []
+        const waypoints = []
+        for (let i = 0; i < numWaypoints; i++) {
+          const waypoint = document.getElementById(`waypoint${i + 1}`).value
+          if (waypoint) {
+            waypoints.push({ location: waypoint, stopover: true })
+            waypointsData.push(waypoint)
+          }
         }
-
-        function calculateRoute() {
-            const origin = document.getElementById('origin').value;
-            const destination = document.getElementById('destination').value;
-            const numWaypoints = document.getElementById('num_waypoints').value;
-            const travelMode = document.getElementById('travel_mode').value;
-
-            waypointsData = [];
-            const waypoints = [];
-            for (let i = 0; i < numWaypoints; i++) {
-                const waypoint = document.getElementById(`waypoint${i + 1}`).value;
-                if (waypoint) {
-                    waypoints.push({ location: waypoint, stopover: true });
-                    waypointsData.push(waypoint);
-                }
-            }
-
-            const request = {
+      
+        const request = {
+          origin: origin,
+          destination: destination,
+          waypoints: waypoints,
+          travelMode: travelMode
+        }
+      
+        directionsService.route(request, function (result, status) {
+          if (status === 'OK') {
+            directionsRenderer.setDirections(result)
+      
+            const totalDistance = result.routes[0].legs.reduce((sum, leg) => sum + leg.distance.value, 0) / 1000 // en kilómetros
+            const totalDuration = result.routes[0].legs.reduce((sum, leg) => sum + leg.duration.value, 0) // en segundos
+            const totalHours = Math.floor(totalDuration / 3600)
+            const totalMinutes = Math.floor((totalDuration % 3600) / 60)
+      
+            fetch('/get_directions', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
                 origin: origin,
                 destination: destination,
-                waypoints: waypoints,
-                travelMode: travelMode
-            };
-
-            directionsService.route(request, function(result, status) {
-                if (status == 'OK') {
-                    directionsRenderer.setDirections(result);
-
-                    const totalDistance = result.routes[0].legs.reduce((sum, leg) => sum + leg.distance.value, 0) / 1000;  // en kilómetros
-                    const totalDuration = result.routes[0].legs.reduce((sum, leg) => sum + leg.duration.value, 0);  // en segundos
-                    const totalHours = Math.floor(totalDuration / 3600);
-                    const totalMinutes = Math.floor((totalDuration % 3600) / 60);
-
-                    fetch('/get_directions', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            origin: origin,
-                            destination: destination,
-                            waypoints: waypoints.map(wp => wp.location),
-                            total_distance: totalDistance,
-                            total_duration: totalDuration,
-                            travel_mode: travelMode
-                        })
-                    }).then(response => response.json())
-                      .then(data => {
-                          document.getElementById('distance').innerText = `Distancia total: ${data.total_distance.toFixed(2)} km`;
-                          document.getElementById('duration').innerText = `Duración total: ${totalHours} horas y ${totalMinutes} minutos`;
-                          document.getElementById('fuel_cost').innerText = `Costo total de la gasolina: $${data.total_fuel_cost.toFixed(2)}`;
-                          document.getElementById('toll_cost').innerText = `Costo total de las casetas: $${data.total_toll_cost.toFixed(2)}`;
-                          document.getElementById('total_cost').innerText = `Costo total del viaje: $${data.total_trip_cost.toFixed(2)}`;
-                      })
-                      .catch(error => console.error('Error:', error));
-                } else {
-                    console.error('Error: ' + status);
-                }
-            });
-        }
-
-        window.onload = initMap;
+                waypoints: waypointsData,
+                travel_mode: travelMode
+              })
+            })
+              .then((response) => {
+                return response.json()
+              })
+              .then((data) => {
+                document.getElementById('distance').innerText = `Distancia total: ${data.total_distance.toFixed(2)} km`
+                document.getElementById('duration').innerText = `Duración total: ${data.total_duration}`
+                document.getElementById('fuel_cost').innerText = `Costo total de la gasolina: $${data.total_fuel_cost.toFixed(2)}`
+                document.getElementById('toll_cost').innerText = `Costo total de las casetas: $${data.total_toll_cost.toFixed(2)}`
+                document.getElementById('total_cost').innerText = `Costo total del viaje: $${data.total_trip_cost.toFixed(2)}`
+              })
+              .catch((error) => {
+                console.error('Error:', error)
+              })
+          } else {
+            console.error('Directions request failed due to ' + status)
+          }
+        })
+      }
+      
+      window.onload = initMap
     </script>
-</body>
+  </body>
 </html>
